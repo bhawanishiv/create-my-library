@@ -3,9 +3,10 @@ const globby = require("globby");
 const pEachSeries = require("p-each-series");
 const mkdirp = require("make-dir");
 const handlebars = require("handlebars");
+const execa = require("execa");
 const Listr = require("listr");
 
-const fs = require('fs')
+const fs = require("fs");
 const path = require("path");
 
 const package = require("../package.json");
@@ -79,8 +80,6 @@ exports.getProgramOptions = (args) => {
 };
 
 const copyTemplateFiles = async ({ file, source, destination, options }) => {
-  console.log(`file->`, file);
-
   const fileRelativePath = path.relative(source, file).replace(/\\/g, "/");
   if (fileRelativePath.startsWith(".git")) {
     return;
@@ -107,26 +106,55 @@ const copyTemplateFiles = async ({ file, source, destination, options }) => {
   return fileRelativePath;
 };
 
+const installPackages = ({ manager, destination }) => {
+  return execa(manager, ["install"], { cwd: destination });
+};
+
+const initializeGit = ({ destination }) => {
+  const gitIgnorePath = path.join(destination, ".gitignore");
+  fs.writeFileSync(
+    gitIgnorePath,
+    `
+# See https://help.github.com/ignore-files/ for more about ignoring files.
+# dependencies
+node_modules
+# builds
+build
+dist
+.rpt2_cache
+# misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+`,
+    "utf8"
+  );
+
+  return execa("git", ["init"], { cwd: destination });
+};
+
 exports.prepareLibraryFiles = async (options) => {
-  const { manager, template, name, templatePath, git } = options;
+  const { manager, template, name, git } = options;
 
   // handle scoped package names
   const parts = name.split("/");
-  console.log(`parts->`, parts);
   options.shortName = parts[parts.length - 1];
 
   const destination = path.join(process.cwd(), options.shortName);
   options.destination = destination;
-  console.log(`destination->`, destination);
 
   const source = path.join(__dirname, "..", "src", "templates", template);
 
-  console.log(`source->`, source);
   const files = await globby(source.replace(/\\/g, "/"), {
     dot: true,
   });
 
-  console.log(`files->`, files);
   const promise = pEachSeries(files, async (file) => {
     return copyTemplateFiles({
       file,
@@ -136,12 +164,25 @@ exports.prepareLibraryFiles = async (options) => {
     });
   });
 
-  const tasks = new Listr([
+  const tasks = [
     {
       title: `Copying ${template} template to ${destination}`,
       task: () => promise,
     },
-  ]);
+    {
+      title: `Installing dependencies using ${manager}`,
+      task: () => installPackages(options),
+    },
+  ];
 
-  await tasks.run();
+  if (git) {
+    tasks.push({
+      title: "Initializing Git",
+      task: () => initializeGit(options),
+    });
+  }
+
+  const task = new Listr(tasks);
+
+  await task.run();
 };
