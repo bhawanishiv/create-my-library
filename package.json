@@ -1,7 +1,7 @@
 {
   "name": "create-my-library",
   "version": "0.0.1",
-  "description": "A tool to create a library",
+  "description": "CLI for creating reusable, modern javascript libraries using Rollup and create-my-library",
   "main": "src/index.js",
   "repository": "git@github.com:bhawanishiv/create-my-library.git",
   "author": "Bhawani Shankar Bharti <bhawanishiv@gmail.com>",
@@ -15,7 +15,8 @@
   },
   "keywords": [
     "create-my-library",
-    "library"
+    "library",
+    "CLI"
   ],
   "files": [
     "bin/",
