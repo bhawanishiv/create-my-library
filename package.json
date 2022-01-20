@@ -1,0 +1,36 @@
+{
+  "name": "create-my-library",
+  "version": "0.0.1",
+  "description": "A tool to create a library",
+  "main": "src/index.js",
+  "repository": "git@github.com:bhawanishiv/create-my-library.git",
+  "author": "Bhawani Shankar Bharti <bhawanishiv@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "bin": {
+    "create-my-library": "bin/create-my-library"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "create-my-library",
+    "library"
+  ],
+  "files": [
+    "bin/",
+    "src/"
+  ],
+  "dependencies": {
+    "chalk": "4.1.2",
+    "commander": "^8.3.0",
+    "globby": "11.0.4",
+    "handlebars": "^4.7.7",
+    "inquirer": "^8.2.0",
+    "listr": "^0.14.3",
+    "make-dir": "^3.1.0",
+    "p-each-series": "2.2.0",
+    "shelljs": "^0.8.5",
+    "validate-npm-package-name": "^3.0.0"
+  }
+}
