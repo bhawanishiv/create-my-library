@@ -10,7 +10,6 @@
 - Easy-to-use CLI
 - Handles all modern JS features
 - Bundles `commonjs` and `es` module formats
-- [create-react-app](https://github.com/facebookincubator/create-react-app) for example usage and local dev
 - [Rollup](https://rollupjs.org/) for bundling
 - Supports complicated peer-dependencies
 - Supports CSS modules
